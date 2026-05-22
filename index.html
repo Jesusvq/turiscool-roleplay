@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turiscool · Roleplay Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal:#04BFAD; --deep:#0094AB; --dark:#121D13; --mint:#00DD9A;
+  --green:#90F188; --yellow:#F8D252; --white:#FFFFFF; --cream:#F3F3E9;
+  --gray:#E2E2D8; --gray2:#F0F0E8; --r:14px; --rs:9px;
+  --sh:0 2px 16px rgba(4,191,173,.12); --shh:0 6px 32px rgba(18,29,19,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Nunito Sans',sans-serif;background:var(--dark);color:var(--dark);overflow:hidden}
+
+/* ── SHELL ── */
+.shell{display:grid;grid-template-columns:380px 1fr;height:100vh}
+
+/* ── LEFT PANEL ── */
+.left{background:var(--cream);display:flex;flex-direction:column;border-right:2px solid var(--gray);overflow:hidden}
+
+.left-head{padding:18px 20px 14px;background:var(--dark);flex-shrink:0}
+.logo{font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.5px}
+.logo span{color:var(--teal)}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+
+/* steps nav */
+.steps{display:flex;gap:0;background:rgba(255,255,255,.05);border-radius:0;border-top:1px solid rgba(255,255,255,.07);margin-top:12px}
+.step-btn{flex:1;padding:9px 4px;background:none;border:none;font-family:inherit;font-size:10px;font-weight:800;color:rgba(255,255,255,.35);cursor:pointer;transition:.2s;letter-spacing:.5px;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent}
+.step-btn .sn{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900}
+.step-btn.on{color:var(--teal);border-bottom-color:var(--teal)}
+.step-btn.on .sn{background:var(--teal);color:var(--dark)}
+.step-btn.done{color:var(--mint)}
+.step-btn.done .sn{background:var(--mint);color:var(--dark)}
+
+.left-body{flex:1;overflow-y:auto;padding:18px 20px}
+.left-foot{padding:14px 20px;border-top:2px solid var(--gray);flex-shrink:0;background:var(--white)}
+
+/* ── STEP PANES ── */
+.pane{display:none}.pane.on{display:block}
+
+/* ── AI PROMPT GENERATOR ── */
+.gen-box{background:var(--dark);border-radius:var(--r);padding:18px;margin-bottom:16px;position:relative;overflow:hidden}
+.gen-box::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(4,191,173,.15) 0%,transparent 70%)}
+.gen-label{font-size:10px;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.gen-label::after{content:'✦';opacity:.5}
+.gen-input{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(4,191,173,.2);border-radius:var(--rs);padding:12px 14px;color:#fff;font-family:inherit;font-size:13px;resize:none;min-height:80px;transition:.2s;line-height:1.5}
+.gen-input:focus{outline:none;border-color:var(--teal);background:rgba(255,255,255,.1)}
+.gen-input::placeholder{color:rgba(255,255,255,.28)}
+.gen-row{display:flex;gap:8px;margin-top:10px;align-items:center}
+.gen-btn{background:var(--teal);color:var(--dark);border:none;border-radius:var(--rs);padding:10px 18px;font-family:inherit;font-size:12px;font-weight:900;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.gen-btn:hover{background:var(--deep);color:#fff}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed}
+.gen-btn.spin::after{content:'';display:inline-block;width:12px;height:12px;border:2px solid rgba(18,29,19,.3);border-top-color:var(--dark);border-radius:50%;animation:spin .7s linear infinite;margin-left:4px}
+.tpl-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.tpl-chip{background:rgba(4,191,173,.1);border:1px solid rgba(4,191,173,.2);color:rgba(255,255,255,.6);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;cursor:pointer;transition:.2s}
+.tpl-chip:hover{background:rgba(4,191,173,.2);color:#fff}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── FORM ELEMENTS ── */
+.slbl{font-size:10px;font-weight:800;color:var(--deep);text-transform:uppercase;letter-spacing:1.5px;margin:18px 0 8px;display:flex;align-items:center;gap:6px}
+.slbl::after{content:'';flex:1;height:1px;background:var(--gray)}
+.fg{margin-bottom:11px}
+.fg label{display:block;font-size:11px;font-weight:700;margin-bottom:4px;color:#444}
+.fg input,.fg textarea,.fg select{width:100%;padding:9px 12px;border:2px solid var(--gray);border-radius:var(--rs);font-family:inherit;font-size:12px;background:#fff;color:var(--dark);transition:.2s;resize:vertical}
+.fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:var(--teal);background:#fff}
+.hint{font-size:10px;color:#999;margin-top:3px;line-height:1.4}
+
+/* ── MODE CARDS ── */
+.mcards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:4px}
+.mc{border:2px solid var(--gray);border-radius:var(--rs);padding:10px 6px;cursor:pointer;text-align:center;transition:.2s;background:#fff}
+.mc:hover,.mc.on{border-color:var(--teal)}
+.mc.on{background:rgba(4,191,173,.07)}
+.mc .mi{font-size:18px;margin-bottom:3px}
+.mc .mn{font-size:10px;font-weight:800}
+.mc .md{font-size:9px;color:#777;margin-top:1px}
+
+/* ── AVATAR PICKER ── */
+.av-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.av-opt{border:2px solid var(--gray);border-radius:var(--rs);padding:8px 4px;cursor:pointer;text-align:center;transition:.2s;background:#fff}
+.av-opt:hover,.av-opt.on{border-color:var(--teal);background:rgba(4,191,173,.07)}
+.av-opt .ae{font-size:22px}
+.av-opt .al{font-size:9px;color:#777;margin-top:2px}
+
+/* Unsplash avatar preview */
+.av-photo{width:60px;height:60px;border-radius:50%;object-fit:cover;border:3px solid var(--teal);display:none;margin:0 auto 8px}
+.av-photo.show{display:block}
+.av-search{display:flex;gap:6px;margin-bottom:8px}
+.av-search input{flex:1;padding:8px 11px;border:2px solid var(--gray);border-radius:var(--rs);font-family:inherit;font-size:11px;background:#fff}
+.av-search input:focus{outline:none;border-color:var(--teal)}
+.av-search button{background:var(--teal);color:var(--dark);border:none;border-radius:var(--rs);padding:8px 12px;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer}
+.av-results{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;min-height:0}
+.av-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;cursor:pointer;border:2px solid transparent;transition:.2s}
+.av-thumb:hover,.av-thumb.on{border-color:var(--teal)}
+
+/* ── AGENDA ── */
+.agenda-item{background:#fff;border:1.5px solid var(--gray);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:.2s}
+.agenda-item:hover{border-color:rgba(4,191,173,.3)}
+.ai-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer}
+.ai-num{width:22px;height:22px;border-radius:50%;background:var(--teal);color:var(--dark);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-title-input{flex:1;border:none;background:transparent;font-family:inherit;font-size:12px;font-weight:800;color:var(--dark);padding:0}
+.ai-title-input:focus{outline:none}
+.ai-toggle{font-size:12px;color:#bbb;cursor:pointer;transition:.2s;background:none;border:none;padding:2px}
+.ai-body{display:none;padding:0 12px 12px;border-top:1px solid var(--gray2)}
+.ai-body.open{display:block}
+.ai-field{margin-top:8px}
+.ai-field label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#888;display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.ai-field label .badge{background:rgba(4,191,173,.1);color:var(--deep);padding:1px 5px;border-radius:4px;font-size:8px}
+.ai-field label .badge.priv{background:rgba(248,210,82,.15);color:#9a7c00}
+.ai-field textarea{width:100%;border:1.5px solid var(--gray);border-radius:var(--rs);padding:7px 10px;font-family:inherit;font-size:11px;resize:none;background:var(--gray2);min-height:42px}
+.ai-field textarea:focus{outline:none;border-color:var(--teal);background:#fff}
+.ai-del{background:none;border:none;cursor:pointer;color:#ddd;font-size:16px;padding:0 2px;flex-shrink:0}
+.ai-del:hover{color:#e55}
+.addbtn{display:flex;align-items:center;gap:5px;background:none;border:2px dashed var(--teal);color:var(--deep);font-family:inherit;font-size:11px;font-weight:700;padding:8px 12px;border-radius:var(--rs);cursor:pointer;width:100%;transition:.2s;margin-top:3px}
+.addbtn:hover{background:rgba(4,191,173,.06)}
+
+/* ── SKILLS / RULES ── */
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.tag{background:var(--mint);color:var(--dark);font-size:10px;font-weight:700;padding:4px 9px;border-radius:20px;display:flex;align-items:center;gap:4px}
+.tag.rule{background:rgba(248,210,82,.25);color:#7a6000}
+.tag button{background:none;border:none;cursor:pointer;font-size:12px;padding:0;line-height:1}
+.tag-input-row{display:flex;gap:5px}
+.tag-input-row input{flex:1;padding:7px 10px;border:2px solid var(--gray);border-radius:var(--rs);font-family:inherit;font-size:11px;background:#fff}
+.tag-input-row input:focus{outline:none;border-color:var(--teal)}
+.tag-input-row button{background:var(--teal);color:var(--dark);border:none;padding:7px 11px;border-radius:var(--rs);font-family:inherit;font-weight:900;cursor:pointer;font-size:13px}
+
+/* ── SETTINGS ── */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray2)}
+.setting-row:last-child{border-bottom:none}
+.sr-left .sr-label{font-size:12px;font-weight:700;color:var(--dark)}
+.sr-left .sr-desc{font-size:10px;color:#888;margin-top:1px}
+.toggle{width:38px;height:22px;border-radius:11px;background:var(--gray);border:none;cursor:pointer;position:relative;transition:.3s;flex-shrink:0}
+.toggle.on{background:var(--teal)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.3s}
+.toggle.on::after{left:19px}
+.el-config{background:var(--gray2);border-radius:var(--r);padding:14px;margin-top:10px}
+.el-config .fg{margin-bottom:8px}
+.el-status{font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px}
+.el-status.ok{background:var(--green);color:var(--dark)}
+.el-status.err{background:#FFD0D0;color:#c00}
+.el-status.idle{background:var(--gray);color:#888}
+
+/* ── FOOT BUTTONS ── */
+.foot-btns{display:flex;gap:8px}
+.btn-back{background:#fff;color:var(--dark);border:2px solid var(--gray);border-radius:var(--rs);padding:10px 16px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;transition:.2s}
+.btn-back:hover{border-color:var(--teal)}
+.btn-next{flex:1;background:var(--teal);color:var(--dark);border:none;border-radius:var(--rs);padding:10px 16px;font-family:inherit;font-size:13px;font-weight:900;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-next:hover{background:var(--deep);color:#fff}
+.btn-next:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── RIGHT PANEL — PLAYER ── */
+.right{background:var(--dark);display:flex;flex-direction:column;position:relative;overflow:hidden}
+
+/* ambient glow */
+.ambient{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.amb1{position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:500px;height:500px;background:radial-gradient(circle,rgba(4,191,173,.06) 0%,transparent 65%)}
+.amb2{position:absolute;bottom:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(0,221,154,.04) 0%,transparent 65%)}
+
+/* Intro screen */
+.intro-screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;z-index:5;transition:.3s}
+.intro-screen.hide{opacity:0;pointer-events:none;transform:scale(.98)}
+.intro-icon{width:80px;height:80px;border-radius:50%;background:rgba(4,191,173,.1);border:2px solid rgba(4,191,173,.2);display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:20px}
+.intro-title{font-size:22px;font-weight:900;color:#fff;margin-bottom:8px;text-align:center}
+.intro-sub{font-size:13px;color:rgba(255,255,255,.4);text-align:center;max-width:320px;line-height:1.6}
+.intro-dots{display:flex;gap:8px;margin-top:24px}
+.intro-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15)}
+.intro-dot.on{background:var(--teal)}
+
+/* Preview card */
+.preview-screen{position:absolute;inset:0;display:flex;flex-direction:column;z-index:4;transition:.3s}
+.preview-screen.hide{opacity:0;pointer-events:none}
+.prev-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.prev-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(4,191,173,.15);color:var(--teal);font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+.prev-body{flex:1;display:grid;grid-template-columns:220px 1fr;gap:0;overflow:hidden}
+.prev-left{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;border-right:1px solid rgba(255,255,255,.07)}
+.prev-avatar-wrap{width:110px;height:110px;border-radius:50%;overflow:hidden;border:3px solid rgba(4,191,173,.3);margin-bottom:14px;background:linear-gradient(135deg,var(--teal),var(--mint));display:flex;align-items:center;justify-content:center;font-size:44px}
+.prev-avatar-wrap img{width:100%;height:100%;object-fit:cover}
+.prev-name{font-size:18px;font-weight:900;color:#fff;text-align:center}
+.prev-role{font-size:12px;color:rgba(255,255,255,.4);text-align:center;margin-top:3px}
+.prev-right{padding:24px;overflow-y:auto}
+.prev-scenario{font-size:13px;color:rgba(255,255,255,.75);line-height:1.65;margin-bottom:20px}
+.prev-agenda{list-style:none}
+.prev-ai{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.prev-ai:last-child{border-bottom:none}
+.prev-anum{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(4,191,173,.4);color:var(--teal);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.prev-atxt{font-size:12px;color:rgba(255,255,255,.7)}
+.prev-adetail{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+.prev-footer{padding:16px 24px;display:flex;gap:10px;border-top:1px solid rgba(255,255,255,.07)}
+.start-btn{flex:1;background:var(--teal);color:var(--dark);border:none;border-radius:var(--r);padding:16px;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px rgba(4,191,173,.3)}
+.start-btn:hover{background:var(--deep);color:#fff;transform:translateY(-1px)}
+.start-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.dur-badge{display:flex;align-items:center;gap:5px;color:rgba(255,255,255,.35);font-size:12px;font-weight:700}
+
+/* Live conversation */
+.conv-screen{position:absolute;inset:0;display:flex;flex-direction:column;z-index:3;opacity:0;pointer-events:none;transition:.4s}
+.conv-screen.show{opacity:1;pointer-events:all}
+.conv-top{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.conv-title{font-size:13px;font-weight:800;color:rgba(255,255,255,.7)}
+.conv-mode-badge{background:rgba(4,191,173,.15);color:var(--teal);font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pdot 1.5s infinite}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+
+.conv-body{flex:1;display:grid;grid-template-columns:200px 1fr;overflow:hidden}
+.conv-left{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;border-right:1px solid rgba(255,255,255,.07);gap:12px}
+.conv-avatar{width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,.1);background:linear-gradient(135deg,var(--teal),var(--mint));display:flex;align-items:center;justify-content:center;font-size:40px;transition:.3s}
+.conv-avatar.sp{border-color:var(--teal);box-shadow:0 0 0 0 rgba(4,191,173,.4);animation:spk .9s infinite}
+.conv-avatar.ls{border-color:var(--yellow);box-shadow:0 0 0 0 rgba(248,210,82,.4);animation:lst .9s infinite}
+@keyframes spk{0%,100%{box-shadow:0 0 0 0 rgba(4,191,173,.4)}50%{box-shadow:0 0 0 18px rgba(4,191,173,0)}}
+@keyframes lst{0%,100%{box-shadow:0 0 0 0 rgba(248,210,82,.4)}50%{box-shadow:0 0 0 18px rgba(248,210,82,0)}}
+.conv-avatar img{width:100%;height:100%;object-fit:cover}
+.conv-cname{font-size:14px;font-weight:900;color:#fff;text-align:center}
+.conv-crole{font-size:11px;color:rgba(255,255,255,.4);text-align:center}
+.state-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:5px 12px;font-size:10px;font-weight:800;color:rgba(255,255,255,.4);letter-spacing:.5px}
+.state-pill .dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.25)}
+.state-pill.sp{color:var(--teal)}.state-pill.sp .dot{background:var(--teal);animation:pdot .8s infinite}
+.state-pill.ls{color:var(--yellow)}.state-pill.ls .dot{background:var(--yellow);animation:pdot .8s infinite}
+.viz{display:flex;gap:3px;align-items:center;height:24px}
+.vb{width:3px;border-radius:3px;background:rgba(255,255,255,.15);height:3px;transition:.1s}
+.viz.sp .vb{background:var(--teal);animation:vba .5s ease infinite}
+.viz.ls .vb{background:var(--yellow);animation:vba .4s ease infinite}
+.vb:nth-child(1){animation-delay:0s}.vb:nth-child(2){animation-delay:.07s}.vb:nth-child(3){animation-delay:.14s}
+.vb:nth-child(4){animation-delay:.21s}.vb:nth-child(5){animation-delay:.1s}.vb:nth-child(6){animation-delay:.03s}
+@keyframes vba{0%,100%{height:3px}50%{height:22px}}
+
+.conv-right{display:flex;flex-direction:column;overflow:hidden}
+.conv-right-top{padding:14px 16px;flex-shrink:0}
+/* now discussing */
+.now-disc{background:rgba(4,191,173,.08);border:1px solid rgba(4,191,173,.15);border-radius:var(--rs);padding:10px 14px;margin-bottom:10px}
+.nd-label{font-size:9px;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+.nd-title{font-size:13px;font-weight:900;color:#fff}
+.nd-hint{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+/* transcript */
+.transcript-box{flex:1;overflow-y:auto;padding:0 16px 10px}
+.tbox{display:flex;flex-direction:column;gap:8px;padding:12px 16px 12px}
+.tmsg{display:flex;flex-direction:column;max-width:85%}
+.tmsg.ai{align-self:flex-start}
+.tmsg.user{align-self:flex-end}
+.tbubble{padding:9px 13px;border-radius:16px;font-size:12px;line-height:1.55;color:#fff}
+.tmsg.ai .tbubble{background:rgba(255,255,255,.1);border-radius:4px 16px 16px 16px}
+.tmsg.user .tbubble{background:var(--teal);color:var(--dark);border-radius:16px 16px 4px 16px}
+.tspk{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;padding:0 3px}
+.tspk.ai{color:rgba(255,255,255,.35)}.tspk.u{color:var(--teal);text-align:right}
+.ttime{font-size:9px;color:rgba(255,255,255,.2);margin-top:2px;padding:0 3px}
+.tmsg.user .ttime{text-align:right}
+.conv-controls{padding:12px 16px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:8px;align-items:center;flex-shrink:0}
+.micbtn{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;font-size:18px;flex-shrink:0}
+.micbtn.muted{background:rgba(229,85,85,.2);border-color:#e55}
+.micbtn:hover{background:rgba(255,255,255,.14)}
+.tinput{flex:1;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 13px;color:#fff;font-family:inherit;font-size:12px;resize:none;min-height:40px;max-height:80px}
+.tinput:focus{outline:none;border-color:var(--teal)}
+.tinput::placeholder{color:rgba(255,255,255,.25)}
+.sndbtn{background:var(--teal);border:none;border-radius:10px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:.2s}
+.sndbtn:hover{background:var(--deep)}
+.sndbtn svg{width:15px;height:15px;fill:#fff}
+.endbtn{background:rgba(229,85,85,.15);border:1.5px solid rgba(229,85,85,.3);border-radius:10px;padding:0 13px;height:40px;font-family:inherit;font-size:11px;font-weight:800;color:#e55;cursor:pointer;transition:.2s;flex-shrink:0}
+.endbtn:hover{background:rgba(229,85,85,.25)}
+.pausebtn{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;padding:0 12px;height:40px;font-family:inherit;font-size:11px;font-weight:800;color:rgba(255,255,255,.6);cursor:pointer;transition:.2s;flex-shrink:0}
+.pausebtn:hover{background:rgba(255,255,255,.14)}
+
+/* ── RESULTS ── */
+.results-screen{position:absolute;inset:0;display:flex;flex-direction:column;z-index:6;background:var(--dark);opacity:0;pointer-events:none;transition:.4s;overflow-y:auto}
+.results-screen.show{opacity:1;pointer-events:all}
+.res-header{padding:28px 28px 20px;text-align:center;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.2)}
+.ring{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;position:relative;background:conic-gradient(var(--teal) 0%,var(--gray) 0%)}
+.ring::before{content:'';position:absolute;width:68px;height:68px;border-radius:50%;background:var(--dark)}
+.rscore{position:relative;z-index:1;font-size:24px;font-weight:900;color:#fff}
+.rtitle{font-size:18px;font-weight:900;color:#fff}
+.rsub{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px}
+.res-body{padding:20px 28px;flex:1}
+.rsum{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:var(--r);padding:14px 16px;font-size:12px;color:rgba(255,255,255,.7);line-height:1.65;margin-bottom:20px}
+.rsum strong{color:var(--teal)}
+.rstl{font-size:10px;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.ari{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:var(--rs);padding:11px 14px;margin-bottom:7px;cursor:pointer;transition:.2s;display:flex;align-items:flex-start;gap:9px}
+.ari:hover{border-color:rgba(4,191,173,.25);background:rgba(4,191,173,.04)}
+.arii{font-size:16px;flex-shrink:0}
+.aric{flex:1}
+.arin{font-size:12px;font-weight:800;color:#fff}
+.arif{font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;line-height:1.45;display:none}
+.ari.open .arif{display:block}
+.arie{color:rgba(255,255,255,.2);font-size:14px;margin-left:auto;transition:.2s}
+.ari.open .arie{transform:rotate(180deg)}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:20px}
+.src{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:var(--rs);padding:11px;display:flex;align-items:center;gap:8px}
+.srb{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.srb.p{background:var(--mint)}.srb.f{background:#FFD0D0}
+.srn{font-size:11px;font-weight:800;color:#fff}
+.srs{font-size:10px;color:rgba(255,255,255,.4)}
+.res-acts{display:flex;gap:8px;margin-top:8px}
+.rbtn{flex:1;background:rgba(255,255,255,.07);color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:var(--rs);padding:12px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;transition:.2s}
+.rbtn:hover{background:rgba(255,255,255,.12)}
+.rbtn.primary{background:var(--teal);color:var(--dark);border-color:var(--teal)}
+.rbtn.primary:hover{background:var(--deep);color:#fff}
+
+/* ── ANALYZING OVERLAY ── */
+.aov{position:absolute;inset:0;background:rgba(18,29,19,.92);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:50;backdrop-filter:blur(6px)}
+.aov.show{display:flex}
+.asp{width:48px;height:48px;border:3px solid rgba(4,191,173,.2);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:14px}
+.atxt{color:#fff;font-size:14px;font-weight:800}
+.asub{color:rgba(255,255,255,.4);font-size:11px;margin-top:4px}
+
+/* ── NOTIFICATION ── */
+.notif{position:fixed;bottom:20px;right:20px;background:var(--dark);color:#fff;padding:10px 16px;border-radius:var(--rs);font-size:12px;font-weight:700;box-shadow:var(--shh);border-left:3px solid var(--teal);z-index:999;transform:translateY(20px);opacity:0;transition:.3s;max-width:280px}
+.notif.show{transform:translateY(0);opacity:1}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.left-body ::-webkit-scrollbar-thumb{background:var(--gray)}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ══════════════════ LEFT PANEL ══════════════════ -->
+<div class="left">
+  <div class="left-head">
+    <div class="logo">Turis<span>c∞∞</span>l <span style="font-size:12px;color:rgba(255,255,255,.4);font-weight:600">Studio</span></div>
+    <div class="logo-sub">Roleplay Builder</div>
+    <div class="steps">
+      <button class="step-btn on" id="sb0" onclick="goStep(0)"><div class="sn">1</div>Escenario</button>
+      <button class="step-btn" id="sb1" onclick="goStep(1)"><div class="sn">2</div>Personaje</button>
+      <button class="step-btn" id="sb2" onclick="goStep(2)"><div class="sn">3</div>Agenda</button>
+      <button class="step-btn" id="sb3" onclick="goStep(3)"><div class="sn">4</div>Ajustes</button>
+    </div>
+  </div>
+
+  <div class="left-body">
+
+    <!-- ══ STEP 0: ESCENARIO ══ -->
+    <div class="pane on" id="pane0">
+
+      <div class="gen-box">
+        <div class="gen-label">✦ Generador IA</div>
+        <textarea class="gen-input" id="gen-prompt" placeholder="Describe el roleplay que quieres crear...
+
+Ej: Quiero un roleplay para que mis recepcionistas practiquen gestión de quejas de clientes insatisfechos en un hotel 4 estrellas."></textarea>
+        <div class="gen-row">
+          <button class="gen-btn" id="gen-btn" onclick="generateScenario()">✦ Generar con IA</button>
+          <span style="font-size:10px;color:rgba(255,255,255,.3)">o usa una plantilla:</span>
+        </div>
+        <div class="tpl-chips">
+          <span class="tpl-chip" onclick="setPrompt('Gestión de quejas de huéspedes en recepción de hotel 4★')">Quejas huéspedes</span>
+          <span class="tpl-chip" onclick="setPrompt('Venta de Turiscool Campus a Director General de cadena hotelera')">Demo comercial</span>
+          <span class="tpl-chip" onclick="setPrompt('Upsell de habitación superior en el momento del check-in')">Upsell check-in</span>
+          <span class="tpl-chip" onclick="setPrompt('Explicar bonificaciones FUNDAE a un HR Manager hotelero')">FUNDAE a RRHH</span>
+          <span class="tpl-chip" onclick="setPrompt('Feedback de desempeño a un camarero con bajo rendimiento')">Coaching equipo</span>
+          <span class="tpl-chip" onclick="setPrompt('Examen oral de protocolo de servicio en restaurante')">Examen protocolo</span>
+        </div>
+      </div>
+
+      <div class="slbl">Tipo de conversación</div>
+      <div class="mcards">
+        <div class="mc on" data-m="roleplay" onclick="selMode(this,'roleplay')"><div class="mi">🎭</div><div class="mn">Juego de Rol</div><div class="md">Aprendiz lidera</div></div>
+        <div class="mc" data-m="discussion" onclick="selMode(this,'discussion')"><div class="mi">💬</div><div class="mn">Debate</div><div class="md">IA facilita</div></div>
+        <div class="mc" data-m="exam" onclick="selMode(this,'exam')"><div class="mi">📋</div><div class="mn">Examen Oral</div><div class="md">Evaluación pura</div></div>
+      </div>
+
+      <div class="slbl">Descripción del escenario</div>
+      <div class="fg">
+        <label>Introducción <span style="font-size:9px;color:#999">(visible para el aprendiz antes de empezar)</span></label>
+        <textarea id="intro-txt" rows="3" placeholder="Describe la situación que va a practicar el aprendiz..."></textarea>
+      </div>
+      <div class="fg">
+        <label>Situación para la IA <span style="font-size:9px;color:#999">(instrucciones privadas, no se muestran)</span></label>
+        <textarea id="situation-txt" rows="3" placeholder="Contexto completo de la situación para que la IA entienda bien su rol..."></textarea>
+      </div>
+      <div class="fg">
+        <label>Idioma</label>
+        <select id="lang">
+          <option value="es">🇪🇸 Español (España)</option>
+          <option value="es-419">🇨🇴 Español (Latinoamérica)</option>
+          <option value="en">🇬🇧 English</option>
+          <option value="pt">🇧🇷 Português</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ══ STEP 1: PERSONAJE ══ -->
+    <div class="pane" id="pane1">
+
+      <div class="slbl">Avatar del personaje</div>
+      <div class="av-search">
+        <input id="av-q" placeholder="Buscar imagen (ej: hotel receptionist)..." onkeydown="if(event.key==='Enter')searchAvatar()">
+        <button onclick="searchAvatar()">Buscar</button>
+      </div>
+      <div class="av-results" id="av-results"></div>
+      <p class="hint" style="margin-bottom:10px">O elige un emoji:</p>
+      <div class="av-grid">
+        <div class="av-opt on" data-av="👨‍💼" onclick="selAvOpt(this,'👨‍💼')"><div class="ae">👨‍💼</div><div class="al">Gerente</div></div>
+        <div class="av-opt" data-av="👩‍💼" onclick="selAvOpt(this,'👩‍💼')"><div class="ae">👩‍💼</div><div class="al">Directora</div></div>
+        <div class="av-opt" data-av="😤" onclick="selAvOpt(this,'😤')"><div class="ae">😤</div><div class="al">Cliente</div></div>
+        <div class="av-opt" data-av="🕵️" onclick="selAvOpt(this,'🕵️')"><div class="ae">🕵️</div><div class="al">Auditor</div></div>
+        <div class="av-opt" data-av="🧑‍🍳" onclick="selAvOpt(this,'🧑‍🍳')"><div class="ae">🧑‍🍳</div><div class="al">Chef</div></div>
+        <div class="av-opt" data-av="🏨" onclick="selAvOpt(this,'🏨')"><div class="ae">🏨</div><div class="al">Revenue</div></div>
+        <div class="av-opt" data-av="👴" onclick="selAvOpt(this,'👴')"><div class="ae">👴</div><div class="al">Sr. Mgr</div></div>
+        <div class="av-opt" data-av="👩‍🏫" onclick="selAvOpt(this,'👩‍🏫')"><div class="ae">👩‍🏫</div><div class="al">Formadora</div></div>
+      </div>
+
+      <div class="slbl">Datos del personaje</div>
+      <div class="fg"><label>Nombre visible</label><input id="cname" placeholder="Ej: Sr. García" oninput="syncPreview()"></div>
+      <div class="fg"><label>Subtítulo / Rol</label><input id="crole" placeholder="Ej: Huésped de negocios" oninput="syncPreview()"></div>
+      <div class="fg" id="pg">
+        <label>Personalidad <span style="font-size:9px;color:var(--deep)">★ instrucciones para la IA</span></label>
+        <textarea id="cpers" rows="4" placeholder="Describe cómo debe comportarse la IA. Ej: Eres el Sr. Carlos García, ejecutivo que acaba de llegar cansado después de un vuelo largo..."></textarea>
+      </div>
+    </div>
+
+    <!-- ══ STEP 2: AGENDA ══ -->
+    <div class="pane" id="pane2">
+      <p style="font-size:11px;color:#888;margin-bottom:12px;line-height:1.5">Pasos numerados para guiar al aprendiz. Cada paso tiene instrucciones para el aprendiz, instrucciones privadas para la IA, y criterios de evaluación.</p>
+      <div id="agenda-list"></div>
+      <button class="addbtn" onclick="addAgendaItem()">+ Añadir paso</button>
+
+      <div class="slbl">Habilidades a demostrar</div>
+      <div class="tags" id="skills-tags"></div>
+      <div class="tag-input-row">
+        <input id="ski" placeholder="Nueva habilidad..." onkeydown="if(event.key==='Enter')addTag('skill')">
+        <button onclick="addTag('skill')">+</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 3: AJUSTES ══ -->
+    <div class="pane" id="pane3">
+
+      <div class="slbl">Reglas de la IA</div>
+      <p style="font-size:10px;color:#888;margin-bottom:8px">Barreras y comportamientos obligatorios para la IA.</p>
+      <div class="tags" id="rules-tags"></div>
+      <div class="tag-input-row">
+        <input id="ri" placeholder="Nueva regla..." onkeydown="if(event.key==='Enter')addTag('rule')">
+        <button onclick="addTag('rule')">+</button>
+      </div>
+
+      <div class="slbl">Voz (ElevenLabs) <span style="font-size:9px;font-weight:400;color:#aaa">solo visible para administradores</span></div>
+      <div class="el-config">
+
+        <div class="fg">
+          <label>Agent ID <span style="font-size:9px;color:#aaa">(administrador)</span></label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input id="el-agent" placeholder="agent_xxxxxxxx" oninput="chkEl()" style="flex:1">
+            <span class="el-status idle" id="ag-st">Sin agente</span>
+          </div>
+          <p class="hint">ElevenLabs → ElevenAgents → tu agente → copia el Agent ID</p>
+        </div>
+        <div class="fg">
+          <label>Voz del personaje</label>
+          <select id="el-voice">
+            <option value="pNInz6obpgDQGcFmaJgB">Adam – masculino, profesional</option>
+            <option value="EXAVITQu4vr4xnSDxMaL">Bella – femenino, amable</option>
+            <option value="VR6AewLTigWG4xSOukaG">Arnold – masculino, autoritario</option>
+            <option value="21m00Tcm4TlvDq8ikWAM">Rachel – femenino, neutral</option>
+            <option value="yoZ06aMxZJJ28mfd3POQ">Sam – neutro, moderno</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="slbl">Opciones</div>
+      <div class="setting-row">
+        <div class="sr-left"><div class="sr-label">Mostrar puntuación al finalizar</div><div class="sr-desc">Muestra el % de aprobación y etiqueta de resultado</div></div>
+        <button class="toggle on" id="tog-score" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="setting-row">
+        <div class="sr-left"><div class="sr-label">Modo entrada</div><div class="sr-desc">Permitir también texto como fallback</div></div>
+        <button class="toggle on" id="tog-text" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="setting-row">
+        <div class="sr-left"><div class="sr-label">Duración estimada</div></div>
+        <select id="dur" style="border:2px solid var(--gray);border-radius:8px;padding:5px 10px;font-family:inherit;font-size:12px;background:#fff">
+          <option value="5">~5 min</option>
+          <option value="6" selected>~6 min</option>
+          <option value="10">~10 min</option>
+          <option value="15">~15 min</option>
+        </select>
+      </div>
+
+      <div class="slbl">Ejemplos de conversación <span style="font-weight:400;font-size:10px;color:#aaa">(opcional)</span></div>
+      <p style="font-size:10px;color:#888;margin-bottom:8px;line-height:1.5">Muestra a la IA cómo debe fluir una conversación ideal.</p>
+      <textarea id="example-conv" rows="5" style="width:100%;border:2px solid var(--gray);border-radius:var(--rs);padding:10px;font-family:inherit;font-size:11px;background:#fff;resize:vertical" placeholder="Recepcionista: «Buenos días, Sr. García. Bienvenido. ¿Le ayudo con su equipaje?»&#10;Sr. García: «¡Muchas gracias! No hace falta.»&#10;Recepcionista: «Perfecto. ¿Podría decirme su nombre completo para el check-in?»"></textarea>
+    </div>
+
+  </div><!-- left-body -->
+
+  <div class="left-foot">
+    <div class="foot-btns">
+      <button class="btn-back" id="btn-back" onclick="prevStep()" style="display:none">← Atrás</button>
+      <button class="btn-next" id="btn-next" onclick="nextStep()">Continuar →</button>
+    </div>
+  </div>
+</div><!-- left -->
+
+<!-- ══════════════════ RIGHT PANEL ══════════════════ -->
+<div class="right">
+  <div class="ambient"><div class="amb1"></div><div class="amb2"></div></div>
+
+  <!-- INTRO -->
+  <div class="intro-screen" id="intro-screen">
+    <div class="intro-icon">🎙️</div>
+    <div class="intro-title">Roleplay de Voz</div>
+    <div class="intro-sub">Configura tu escenario en el panel izquierdo o describe lo que necesitas con IA para generarlo automáticamente.</div>
+    <div class="intro-dots">
+      <div class="intro-dot on"></div>
+      <div class="intro-dot"></div>
+      <div class="intro-dot"></div>
+      <div class="intro-dot"></div>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-screen hide" id="preview-screen">
+    <div class="prev-header">
+      <div class="prev-badge" id="pv-mode">🎭 Juego de Rol</div>
+      <div class="dur-badge">⏱ <span id="pv-dur">6</span> min</div>
+    </div>
+    <div class="prev-body">
+      <div class="prev-left">
+        <div class="prev-avatar-wrap" id="pv-avatar-wrap"><span id="pv-emoji">👨‍💼</span></div>
+        <div class="prev-name" id="pv-name">—</div>
+        <div class="prev-role" id="pv-role">—</div>
+      </div>
+      <div class="prev-right">
+        <div class="prev-scenario" id="pv-intro">—</div>
+        <ul class="prev-agenda" id="pv-agenda"></ul>
+      </div>
+    </div>
+    <div class="prev-footer">
+      <div class="dur-badge" style="color:rgba(255,255,255,.3)">⏱ <span id="pv-dur2">6</span> min estimados</div>
+      <button class="start-btn" id="start-btn" onclick="startConv()">🎙️ Begin Role Play</button>
+    </div>
+  </div>
+
+  <!-- LIVE CONVERSATION -->
+  <div class="conv-screen" id="conv-screen">
+    <div class="conv-top">
+      <div class="conv-title" id="ct">Simulación de Voz</div>
+      <div class="conv-mode-badge" id="cm">Juego de Rol</div>
+      <div style="display:flex;align-items:center;gap:6px"><div class="live-dot" id="ldot" style="display:none"></div><span style="font-size:10px;color:rgba(255,255,255,.35);font-weight:700" id="ltxt">Desconectado</span></div>
+    </div>
+    <div class="conv-body">
+      <div class="conv-left">
+        <div class="conv-avatar" id="cv-av"><span id="cv-emoji">👨‍💼</span></div>
+        <div class="conv-cname" id="cv-name">—</div>
+        <div class="conv-crole" id="cv-role">—</div>
+        <div class="state-pill" id="spill"><div class="dot"></div><span id="spilltxt">Esperando...</span></div>
+        <div class="viz" id="viz">
+          <div class="vb"></div><div class="vb"></div><div class="vb"></div>
+          <div class="vb"></div><div class="vb"></div><div class="vb"></div>
+        </div>
+      </div>
+      <div class="conv-right">
+        <div class="conv-right-top">
+          <div class="now-disc" id="now-disc">
+            <div class="nd-label">Now discussing</div>
+            <div class="nd-title" id="nd-title">Conectando...</div>
+            <div class="nd-hint" id="nd-hint"></div>
+          </div>
+        </div>
+        <div class="transcript-box" id="tbox"></div>
+        <div class="conv-controls">
+          <button class="micbtn" id="micbtn" onclick="toggleMic()" title="Silenciar">🎤</button>
+          <textarea class="tinput" id="tinput" placeholder="O escribe aquí..." rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText()}"
+            oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+          <button class="sndbtn" onclick="sendText()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+          <button class="pausebtn" id="pausebtn" onclick="togglePause()">⏸ Pause</button>
+          <button class="endbtn" onclick="endConv()">⊗ End chat</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-screen" id="results-screen">
+    <div class="res-header">
+      <div class="ring" id="ring"><div class="rscore" id="rscore">—</div></div>
+      <div class="rtitle" id="rtitle">Análisis completado</div>
+      <div class="rsub" id="rsub">—</div>
+    </div>
+    <div class="res-body">
+      <div class="rsum" id="rsum"></div>
+      <div class="rstl">📋 Revisión por paso</div>
+      <div id="ares" style="margin-bottom:18px"></div>
+      <div class="rstl">⚡ Habilidades demostradas</div>
+      <div class="sgrid" id="sres" style="margin-bottom:18px"></div>
+      <div class="res-acts">
+        <button class="rbtn" onclick="backToPreview()">← Volver</button>
+        <button class="rbtn primary" onclick="restartConv()">🔄 Repetir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYZING -->
+  <div class="aov" id="aov">
+    <div class="asp"></div>
+    <div class="atxt">Analizando conversación...</div>
+    <div class="asub">Evaluando tu desempeño con IA</div>
+  </div>
+
+</div><!-- right -->
+</div><!-- shell -->
+
+<div class="notif" id="notif"></div>
+
+<script src="/elevenlabs-client.js"></script>
+<script>
+// ══ ElevenLabs via SDK oficial ══
+// Wrapper sobre @11labs/client que expone la misma interfaz que antes
+window.ElevenLabsConv = {
+  async startSession(opts) {
+    const { signedUrl, overrides, onConnect, onDisconnect, onError, onModeChange, onMessage } = opts;
+
+    // Extraer agent_id de la URL
+    const agentId = signedUrl.includes('agent_id=') 
+      ? signedUrl.split('agent_id=')[1].split('&')[0]
+      : null;
+
+    if (!agentId) {
+      if(onError) onError('Agent ID no encontrado');
+      throw new Error('Agent ID no encontrado');
+    }
+
+    // Usar SDK oficial de ElevenLabs
+    // ElevenLabsClient es el global del IIFE build (lib.iife.js)
+    const EL = window.ElevenLabsClient;
+    const Conversation = EL?.Conversation;
+
+    if (!Conversation) {
+      if(onError) onError('SDK de ElevenLabs no cargado — ¿está corriendo proxy.py?');
+      throw new Error('SDK no disponible');
+    }
+
+    return this._startWithSDK(Conversation, agentId, overrides, {onConnect, onDisconnect, onError, onModeChange, onMessage});
+  },
+
+  async _startWithSDK(Conversation, agentId, overrides, callbacks) {
+    const { onConnect, onDisconnect, onError, onModeChange, onMessage } = callbacks;
+    
+    const session = await Conversation.startSession({
+      agentId,
+      overrides,
+      onConnect: () => { if(onConnect) onConnect(); },
+      onDisconnect: () => { if(onDisconnect) onDisconnect(); },
+      onError: (e) => { if(onError) onError(e?.message || e); },
+      onModeChange: (mode) => { if(onModeChange) onModeChange(mode); },
+      onMessage: (msg) => { if(onMessage) onMessage(msg); },
+    });
+
+    // Adaptar interfaz
+    return {
+      _session: session,
+      setMicMuted: (v) => session.setMicMuted?.(v),
+      sendUserMessage: (t) => session.sendUserMessage?.(t),
+      endSession: () => session.endSession?.(),
+    };
+  }
+};
+</script>
+<script>
+// ══════════════ STATE ══════════════
+const S = {
+  step: 0,
+  mode: 'roleplay',
+  // Scenario
+  intro: '', situation: '', lang: 'es',
+  // Character
+  avatar: '👨‍💼', avatarUrl: null,
+  cname: '', crole: '', cpers: '',
+  // Agenda
+  agenda: [], // [{title, details, ai, grading}]
+  skills: [],
+  // Settings
+  rules: [],
+  elKey: '', agentId: '', voiceId: 'pNInz6obpgDQGcFmaJgB',
+  showScore: true, allowText: true, dur: 6,
+  exampleConv: '',
+  // Session
+  conv: null, sessionActive: false, muted: false, paused: false,
+  transcript: [], agendaStep: 0,
+};
+
+// ══════════════ CONFIG ══════════════
+// Cambia esto si tu proxy corre en otro puerto
+// Detectar si estamos en local o en Vercel
+const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+
+async function claudeAPI(body) {
+  const r = await fetch(`${API_BASE}/api/claude`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(`Error ${r.status}: ${await r.text()}`);
+  return r.json();
+}
+
+async function getElevenLabsSignedUrl(agentId) {
+  // For public agents, return the direct WSS URL (no auth needed)
+  return `wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${agentId}`;
+}
+
+// ══════════════ STEP NAV ══════════════
+function goStep(n) {
+  S.step = n;
+  document.querySelectorAll('.pane').forEach((p,i) => p.classList.toggle('on', i===n));
+  document.querySelectorAll('.step-btn').forEach((b,i) => {
+    b.classList.toggle('on', i===n);
+    b.classList.toggle('done', i<n);
+  });
+  document.getElementById('btn-back').style.display = n>0 ? 'block' : 'none';
+  document.getElementById('btn-next').textContent = n===3 ? '🎙️ Lanzar simulación' : 'Continuar →';
+  // Update intro dots
+  document.querySelectorAll('.intro-dot').forEach((d,i) => d.classList.toggle('on', i===n));
+  // Show/hide preview
+  updatePreview();
+}
+function nextStep() {
+  if (S.step < 3) goStep(S.step + 1);
+  else launchPreview();
+}
+function prevStep() { if (S.step > 0) goStep(S.step - 1); }
+
+// ══════════════ AI GENERATOR ══════════════
+function setPrompt(txt) { document.getElementById('gen-prompt').value = txt; }
+
+async function generateScenario() {
+  const prompt = document.getElementById('gen-prompt').value.trim();
+  if (!prompt) { notify('Describe el roleplay que quieres crear.'); return; }
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true; btn.classList.add('spin'); btn.textContent = 'Generando...';
+
+  const systemPrompt = `Eres experto en formación hotelera. Genera un roleplay de entrenamiento.
+Devuelve SOLO JSON puro, sin markdown, sin texto extra, sin backticks. Estructura:
+{"mode":"roleplay","intro":"2 frases para el aprendiz","situation":"contexto para la IA en 2 frases","charName":"nombre","charRole":"rol","charPersonality":"personalidad en 2 frases","agenda":[{"title":"paso","details":"qué hace el aprendiz","ai":"instrucción IA","grading":"criterio"}],"skills":["skill1","skill2","skill3"],"rules":["regla1","regla2"],"exampleConv":"2 turnos de ejemplo"}
+Genera exactamente 4 pasos de agenda. Solo JSON, nada más.`;
+
+  try {
+    const data = await claudeAPI({ model: 'claude-sonnet-4-5', max_tokens: 2000, system: systemPrompt, messages: [{ role: 'user', content: prompt }] });
+    const raw = data.content?.[0]?.text || '{}';
+    let clean = raw.replace(/```json|```/g,'').trim();
+    // Extract JSON object even if truncated - find the outermost { }
+    const start = clean.indexOf('{');
+    let parsed;
+    if (start !== -1) {
+      // Try full parse first
+      try {
+        parsed = JSON.parse(clean.substring(start));
+      } catch(e1) {
+        // Try to fix truncated JSON by finding last complete field
+        let attempt = clean.substring(start);
+        // Remove trailing incomplete content and close the object
+        attempt = attempt.replace(/,\s*"[^"]*"\s*:\s*[^,}]*$/, '');
+        attempt = attempt.replace(/,\s*"[^"]*"\s*:\s*"[^"]*$/, '');
+        if (!attempt.endsWith('}')) attempt += '}';
+        try { parsed = JSON.parse(attempt); } catch(e2) { throw new Error('JSON inválido: ' + e1.message); }
+      }
+    } else {
+      throw new Error('Sin respuesta JSON del servidor');
+    }
+    applyGenerated(parsed);
+    notify('✦ Escenario generado correctamente');
+    goStep(0);
+  } catch(e) {
+    console.error(e);
+    notify('❌ ' + (e.message||e) + ' — ¿Está corriendo proxy.py?');
+  }
+  btn.disabled = false; btn.classList.remove('spin'); btn.textContent = '✦ Generar con IA';
+}
+
+function applyGenerated(d) {
+  // Mode
+  S.mode = d.mode || 'roleplay';
+  document.querySelectorAll('.mc').forEach(c => c.classList.toggle('on', c.dataset.m === S.mode));
+  document.getElementById('pg').style.display = S.mode==='roleplay'?'block':'none';
+  // Scenario
+  document.getElementById('intro-txt').value = d.intro || '';
+  document.getElementById('situation-txt').value = d.situation || '';
+  // Character
+  document.getElementById('cname').value = d.charName || '';
+  document.getElementById('crole').value = d.charRole || '';
+  document.getElementById('cpers').value = d.charPersonality || '';
+  // Agenda
+  S.agenda = (d.agenda || []).map(a => ({title:a.title||'',details:a.details||'',ai:a.ai||'',grading:a.grading||''}));
+  renderAgenda();
+  // Skills
+  S.skills = d.skills || [];
+  renderTags('skill');
+  // Rules
+  S.rules = d.rules || [];
+  renderTags('rule');
+  // Example
+  document.getElementById('example-conv').value = d.exampleConv || '';
+  updatePreview();
+}
+
+// ══════════════ MODE ══════════════
+function selMode(el, m) {
+  document.querySelectorAll('.mc').forEach(c => c.classList.remove('on'));
+  el.classList.add('on'); S.mode = m;
+  document.getElementById('pg').style.display = m==='roleplay'?'block':'none';
+  updatePreview();
+}
+
+// ══════════════ AVATAR ══════════════
+let selectedAvatarUrl = null;
+function selAvOpt(el, emoji) {
+  document.querySelectorAll('.av-opt').forEach(o => o.classList.remove('on'));
+  document.querySelectorAll('.av-thumb').forEach(o => o.classList.remove('on'));
+  el.classList.add('on');
+  S.avatar = emoji; S.avatarUrl = null; selectedAvatarUrl = null;
+  syncPreview();
+}
+async function searchAvatar() {
+  const q = document.getElementById('av-q').value.trim();
+  if (!q) return;
+  // Use Unsplash source for free images
+  const container = document.getElementById('av-results');
+  container.innerHTML = '<span style="font-size:11px;color:#999">Cargando...</span>';
+  // Generate deterministic seed-based URLs from Unsplash
+  const seeds = [q+'1',q+'2',q+'3',q+'4',q+'5',q+'6'];
+  container.innerHTML = '';
+  seeds.forEach((seed, i) => {
+    const img = document.createElement('img');
+    img.className = 'av-thumb';
+    img.src = `https://source.unsplash.com/88x88/?${encodeURIComponent(q)}&sig=${i+1}`;
+    img.onerror = () => { img.remove(); };
+    img.onclick = () => {
+      document.querySelectorAll('.av-thumb').forEach(t => t.classList.remove('on'));
+      document.querySelectorAll('.av-opt').forEach(t => t.classList.remove('on'));
+      img.classList.add('on');
+      S.avatarUrl = img.src; S.avatar = null; selectedAvatarUrl = img.src;
+      syncPreview();
+    };
+    container.appendChild(img);
+  });
+}
+
+// ══════════════ AGENDA ══════════════
+function addAgendaItem(data) {
+  S.agenda.push(data || {title:'', details:'', ai:'', grading:''});
+  renderAgenda();
+}
+function removeAgendaItem(i) {
+  S.agenda.splice(i, 1); renderAgenda();
+}
+function renderAgenda() {
+  const c = document.getElementById('agenda-list'); c.innerHTML = '';
+  S.agenda.forEach((item, i) => {
+    const div = document.createElement('div'); div.className = 'agenda-item';
+    div.innerHTML = `
+      <div class="ai-head">
+        <div class="ai-num">${i+1}</div>
+        <input class="ai-title-input" value="${item.title}" placeholder="Nombre del paso..." oninput="S.agenda[${i}].title=this.value;syncPvAgenda()">
+        <button class="ai-toggle" onclick="this.closest('.agenda-item').querySelector('.ai-body').classList.toggle('open');this.textContent=this.closest('.agenda-item').querySelector('.ai-body').classList.contains('open')?'▲':'▼'">▼</button>
+        <button class="ai-del" onclick="removeAgendaItem(${i})">×</button>
+      </div>
+      <div class="ai-body">
+        <div class="ai-field">
+          <label>Detalles <span class="badge">Visible para el aprendiz</span></label>
+          <textarea rows="2" placeholder="Qué debe hacer el aprendiz en este paso..." oninput="S.agenda[${i}].details=this.value">${item.details}</textarea>
+        </div>
+        <div class="ai-field">
+          <label>IA <span class="badge priv">Instrucción privada</span></label>
+          <textarea rows="2" placeholder="Cómo debe comportarse la IA en este paso..." oninput="S.agenda[${i}].ai=this.value">${item.ai}</textarea>
+        </div>
+        <div class="ai-field">
+          <label>Clasificación <span class="badge priv">Criterio de evaluación</span></label>
+          <textarea rows="2" placeholder="Qué debe hacer el aprendiz para aprobar este paso..." oninput="S.agenda[${i}].grading=this.value">${item.grading}</textarea>
+        </div>
+      </div>`;
+    c.appendChild(div);
+  });
+  syncPvAgenda();
+}
+
+// ══════════════ TAGS ══════════════
+function addTag(type) {
+  const id = type==='skill'?'ski':'ri';
+  const val = document.getElementById(id).value.trim(); if(!val) return;
+  if(type==='skill') S.skills.push(val);
+  else S.rules.push(val);
+  document.getElementById(id).value = '';
+  renderTags(type);
+}
+function removeTag(type, i) {
+  if(type==='skill') S.skills.splice(i,1);
+  else S.rules.splice(i,1);
+  renderTags(type);
+}
+function renderTags(type) {
+  const arr = type==='skill' ? S.skills : S.rules;
+  const cid = type==='skill' ? 'skills-tags' : 'rules-tags';
+  const c = document.getElementById(cid); c.innerHTML = '';
+  arr.forEach((t,i) => {
+    const sp = document.createElement('span');
+    sp.className = 'tag' + (type==='rule'?' rule':'');
+    sp.innerHTML = `${t}<button onclick="removeTag('${type}',${i})">×</button>`;
+    c.appendChild(sp);
+  });
+}
+
+// ══════════════ EL CONFIG ══════════════
+function chkEl() {
+  S.agentId = document.getElementById('el-agent').value.trim();
+  const ast = document.getElementById('ag-st');
+  ast.className = 'el-status ' + (S.agentId.length>5?'ok':'idle');
+  ast.textContent = S.agentId.length>5?'✓ OK':'Sin agente';
+}
+
+// ══════════════ PREVIEW SYNC ══════════════
+function syncPreview() {
+  S.cname = document.getElementById('cname').value;
+  S.crole = document.getElementById('crole').value;
+  S.cpers = document.getElementById('cpers').value;
+  updatePreview();
+}
+function syncPvAgenda() { updatePreview(); }
+
+function updatePreview() {
+  const modes = {roleplay:'🎭 Juego de Rol',discussion:'💬 Debate',exam:'📋 Examen Oral'};
+  document.getElementById('pv-mode').textContent = modes[S.mode]||'🎭 Juego de Rol';
+  const dur = document.getElementById('dur')?.value || '6';
+  document.getElementById('pv-dur').textContent = dur;
+  document.getElementById('pv-dur2').textContent = dur;
+  // Avatar
+  const wrap = document.getElementById('pv-avatar-wrap');
+  if (S.avatarUrl) {
+    wrap.innerHTML = `<img src="${S.avatarUrl}" style="width:100%;height:100%;object-fit:cover">`;
+  } else {
+    wrap.innerHTML = `<span id="pv-emoji" style="font-size:44px">${S.avatar||'👨‍💼'}</span>`;
+  }
+  document.getElementById('pv-name').textContent = document.getElementById('cname')?.value || '—';
+  document.getElementById('pv-role').textContent = document.getElementById('crole')?.value || '—';
+  document.getElementById('pv-intro').textContent = document.getElementById('intro-txt')?.value || '—';
+  // Agenda
+  const pvAg = document.getElementById('pv-agenda'); pvAg.innerHTML = '';
+  S.agenda.forEach((item, i) => {
+    const li = document.createElement('li'); li.className = 'prev-ai';
+    li.innerHTML = `<div class="prev-anum">${i+1}</div>
+      <div><div class="prev-atxt">${item.title||'...'}</div>${item.details?`<div class="prev-adetail">${item.details}</div>`:''}</div>`;
+    pvAg.appendChild(li);
+  });
+  // Show preview if we have something
+  const hasSomething = S.agenda.length > 0 || (document.getElementById('cname')?.value);
+  document.getElementById('intro-screen').classList.toggle('hide', hasSomething);
+  document.getElementById('preview-screen').classList.toggle('hide', !hasSomething);
+}
+
+// ══════════════ LAUNCH PREVIEW ══════════════
+function launchPreview() {
+  // Collect latest values
+  S.intro = document.getElementById('intro-txt').value;
+  S.situation = document.getElementById('situation-txt').value;
+  S.lang = document.getElementById('lang').value;
+  S.cname = document.getElementById('cname').value||'Personaje';
+  S.crole = document.getElementById('crole').value||'';
+  S.cpers = document.getElementById('cpers').value||'';
+  S.agentId = document.getElementById('el-agent').value.trim();
+  S.voiceId = document.getElementById('el-voice').value;
+  S.exampleConv = document.getElementById('example-conv').value;
+  S.dur = document.getElementById('dur').value;
+  S.showScore = document.getElementById('tog-score').classList.contains('on');
+
+  if (!S.agentId) { notify('⚠️ Introduce el Agent ID de ElevenLabs en Ajustes.'); goStep(3); return; }
+  updatePreview();
+  document.getElementById('preview-screen').classList.remove('hide');
+  document.getElementById('intro-screen').classList.add('hide');
+}
+
+// ══════════════ START CONVERSATION ══════════════
+async function startConv() {
+  const btn = document.getElementById('start-btn');
+  btn.disabled = true; btn.textContent = 'Conectando...';
+
+  // Show conv screen
+  document.getElementById('conv-screen').classList.add('show');
+  document.getElementById('preview-screen').classList.add('hide');
+
+  // Setup conv UI
+  const cvAv = document.getElementById('cv-av');
+  if (S.avatarUrl) {
+    cvAv.innerHTML = `<img src="${S.avatarUrl}" style="width:100%;height:100%;object-fit:cover">`;
+  } else {
+    cvAv.innerHTML = `<span id="cv-emoji" style="font-size:40px">${S.avatar||'👨‍💼'}</span>`;
+  }
+  document.getElementById('cv-name').textContent = S.cname;
+  document.getElementById('cv-role').textContent = S.crole;
+  document.getElementById('ct').textContent = `${S.cname} · Simulación`;
+  const modeL = {roleplay:'Juego de Rol',discussion:'Debate',exam:'Examen Oral'};
+  document.getElementById('cm').textContent = modeL[S.mode]||'Juego de Rol';
+  document.getElementById('tbox').innerHTML = '';
+  S.transcript = []; S.agendaStep = 0;
+  setNowDiscussing(0);
+
+  // Connect ElevenLabs
+  try {
+    // Get signed URL from proxy (keeps API key secure)
+    const signedUrl = await getElevenLabsSignedUrl(S.agentId);
+    S.conv = await window.ElevenLabsConv.startSession({
+      signedUrl,
+      overrides: {
+        agent: {
+          prompt: { prompt: buildSystemPrompt() },
+          language: S.lang.split('-')[0],
+          firstMessage: buildFirstMessage(),
+        },
+        tts: {
+          voiceId: S.voiceId || undefined,
+        }
+      },
+      onConnect: () => {
+        document.getElementById('ldot').style.display = 'block';
+        document.getElementById('ltxt').textContent = 'En vivo';
+        setConvState('', 'Conectado');
+      },
+      onDisconnect: () => {
+        document.getElementById('ldot').style.display = 'none';
+        document.getElementById('ltxt').textContent = 'Desconectado';
+        S.sessionActive = false;
+      },
+      onError: e => { console.error(e); notify('Error: '+e); },
+      onModeChange: ({mode}) => {
+        if (mode==='speaking') setConvState('sp', 'Hablando...');
+        else if (mode==='listening') setConvState('ls', 'Escuchándote...');
+        else setConvState('', 'Procesando...');
+      },
+      onMessage: ({source, message}) => {
+        if (source==='ai') {
+          addTrans('ai', message);
+          S.transcript.push({role:'ai', text:message});
+        } else if (source==='user') {
+          addTrans('user', message);
+          S.transcript.push({role:'user', text:message});
+          advanceAgenda();
+        }
+      },
+    });
+    S.sessionActive = true;
+    btn.disabled = false; btn.textContent = '🎙️ Begin Role Play';
+  } catch(e) {
+    console.error(e);
+    notify('No se pudo conectar: '+(e.message||e));
+    document.getElementById('conv-screen').classList.remove('show');
+    document.getElementById('preview-screen').classList.remove('hide');
+    btn.disabled = false; btn.textContent = '🎙️ Begin Role Play';
+  }
+}
+
+function buildFirstMessage() {
+  const name = S.cname || 'el personaje';
+  const greetings = {
+    roleplay: `Hola. Soy ${name}. Adelante, te escucho.`,
+    discussion: `Hola, empecemos cuando quieras.`,
+    exam: `Buenos días. Comenzamos el examen cuando estés listo.`
+  };
+  return greetings[S.mode] || greetings.roleplay;
+}
+
+function buildSystemPrompt() {
+  const modeInstr = {
+    roleplay: `Eres un personaje de roleplay para formación en hostelería. El aprendiz lidera. Reacciona de forma realista y natural según tu personalidad.`,
+    discussion: `Eres un facilitador de debate experto. Haces preguntas que invitan a la reflexión y reconduces si el aprendiz divaga.`,
+    exam: `Eres un evaluador oral estricto. Haces preguntas del temario. NO das pistas, NO corriges durante el examen.`,
+  };
+  const langMap = { es:'español de España','es-419':'español latinoamericano', en:'English', pt:'Português' };
+  const agendaStr = S.agenda.map((a,i) =>
+    `${i+1}. ${a.title}${a.ai?` [INSTRUCCIÓN IA: ${a.ai}]`:''}`
+  ).join('\n');
+  const exampleStr = S.exampleConv ? `\n\nEJEMPLO DE CONVERSACIÓN IDEAL:\n${S.exampleConv}` : '';
+
+  return `${modeInstr[S.mode]||modeInstr.roleplay}
+
+PERSONAJE: ${S.cname}
+ROL: ${S.crole}
+PERSONALIDAD: ${S.cpers||'Profesional, directo y realista.'}
+
+SITUACIÓN: ${S.situation||S.intro}
+
+AGENDA (guía el flujo por estos pasos en orden):
+${agendaStr}
+
+HABILIDADES QUE SE EVALÚAN (NO las menciones):
+${S.skills.join(', ')||'Comunicación profesional'}
+
+IDIOMA: Habla únicamente en ${langMap[S.lang]||'español'}.
+
+REGLAS:
+${S.rules.join('\n')||'Mantén el personaje en todo momento. Respuestas cortas y naturales (2-4 frases).'}${exampleStr}
+
+IMPORTANTE: Esta es una conversación de VOZ. Respuestas concisas, naturales, conversacionales. Nunca rompas el personaje.`;
+}
+
+// ══════════════ AGENDA PROGRESS ══════════════
+function setNowDiscussing(idx) {
+  S.agendaStep = idx;
+  const item = S.agenda[idx];
+  if (!item) return;
+  document.getElementById('nd-title').textContent = item.title || `Paso ${idx+1}`;
+  document.getElementById('nd-hint').textContent = item.details || '';
+}
+function advanceAgenda() {
+  const userTurns = S.transcript.filter(m=>m.role==='user').length;
+  const newStep = Math.min(Math.floor(userTurns / Math.max(1, Math.ceil(S.agenda.length>0?8/S.agenda.length:2))), S.agenda.length-1);
+  if (newStep !== S.agendaStep) setNowDiscussing(newStep);
+}
+
+// ══════════════ CONV HELPERS ══════════════
+function setConvState(cls, label) {
+  const sp = document.getElementById('spill'), viz = document.getElementById('viz');
+  const av = document.getElementById('cv-av');
+  sp.className = 'state-pill'+(cls?' '+cls:'');
+  viz.className = 'viz'+(cls?' '+cls:'');
+  document.getElementById('spilltxt').textContent = label;
+  av.className = 'conv-avatar'+(cls==='sp'?' sp':cls==='ls'?' ls':'');
+}
+function addTrans(role, text) {
+  const box = document.getElementById('tbox');
+  const now = new Date().toLocaleTimeString('es', {hour:'2-digit',minute:'2-digit'});
+  const isAI = role === 'ai';
+  const d = document.createElement('div');
+  d.className = 'tmsg ' + (isAI ? 'ai' : 'user');
+  d.innerHTML = `
+    <div class="tspk ${isAI?'ai':'u'}">${isAI ? S.cname : 'Tú'}</div>
+    <div class="tbubble">${text}</div>
+    <div class="ttime">${now}</div>`;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
+function toggleMic() {
+  if (!S.conv||!S.sessionActive) return;
+  S.muted = !S.muted;
+  S.conv.setMicMuted(S.muted);
+  const btn = document.getElementById('micbtn');
+  btn.textContent = S.muted?'🔇':'🎤';
+  btn.classList.toggle('muted', S.muted);
+}
+function togglePause() {
+  S.paused = !S.paused;
+  document.getElementById('pausebtn').textContent = S.paused?'▶ Resume':'⏸ Pause';
+  if (S.conv) S.conv.setMicMuted(S.paused);
+}
+function sendText() {
+  const t = document.getElementById('tinput').value.trim();
+  if (!t||!S.conv||!S.sessionActive) return;
+  S.conv.sendUserMessage(t);
+  document.getElementById('tinput').value = '';
+}
+
+async function endConv() {
+  if (S.conv && S.sessionActive) {
+    try { await S.conv.endSession(); } catch(e){}
+    S.conv = null; S.sessionActive = false;
+  }
+  if (S.transcript.length >= 2) {
+    document.getElementById('aov').classList.add('show');
+    try {
+      const fd = await genFeedback();
+      renderResults(fd);
+    } catch(e) { renderBasicResults(); }
+    document.getElementById('aov').classList.remove('show');
+    document.getElementById('results-screen').classList.add('show');
+    document.getElementById('conv-screen').classList.remove('show');
+  } else {
+    document.getElementById('conv-screen').classList.remove('show');
+    document.getElementById('preview-screen').classList.remove('hide');
+  }
+}
+
+// ══════════════ FEEDBACK ══════════════
+async function genFeedback() {
+  const tx = S.transcript.map(m=>`${m.role==='ai'?S.cname:'APRENDIZ'}: ${m.text}`).join('\n');
+  const pr = `Eres evaluador experto en formación hotelera. Analiza esta conversación de roleplay y devuelve SOLO JSON puro sin markdown:
+{"score":<0-100>,"grade":"<Excelente|Bien|En progreso|Necesita mejorar>","summary":"<2-3 frases concretas sobre el desempeño>","strengths":"<1-2 cosas que hizo bien>","improve":"<1-2 cosas concretas a mejorar>","agendaResults":[{"step":"<título>","passed":true/false,"feedback":"<frase específica>"}],"skillsResults":[{"skill":"<nombre>","passed":true/false}]}
+AGENDA: ${S.agenda.map((a,i)=>i+1+'. '+a.title+(a.grading?' [criterio: '+a.grading+']':'')).join(' | ')}
+HABILIDADES: ${S.skills.join(', ')}
+TRANSCRIPCIÓN:\n${tx}`;
+  const d = await claudeAPI({model:'claude-sonnet-4-5',max_tokens:1000,messages:[{role:'user',content:pr}]});
+  const fbRaw = (d.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim();
+  const fbStart = fbRaw.indexOf('{');
+  if (fbStart === -1) return {};
+  let fbClean = fbRaw.substring(fbStart);
+  try { return JSON.parse(fbClean); } catch(e) {
+    fbClean = fbClean.replace(/,\s*"[^"]*"\s*:\s*[^,}]*$/, '').replace(/,\s*"[^"]*"\s*:\s*"[^"]*$/, '');
+    if (!fbClean.endsWith('}')) fbClean += '}';
+    try { return JSON.parse(fbClean); } catch(e2) { return {}; }
+  }
+}
+function renderResults(data) {
+  const sc = Math.min(100,Math.max(0,data.score||0));
+  const pct = sc + '%';
+  document.getElementById('ring').style.background = `conic-gradient(var(--teal) 0% ${pct}, rgba(255,255,255,.08) ${pct} 100%)`;
+  document.getElementById('rscore').textContent = sc;
+  document.getElementById('rtitle').textContent = sc>=70?'¡Buen trabajo!':sc>=50?'En progreso':'Necesita mejorar';
+  document.getElementById('rsub').textContent = `${S.cname} · ${S.mode==='exam'?'Examen Oral':S.mode==='discussion'?'Debate':'Role Play'}`;
+  const grade = data.grade || (sc>=85?'Excelente':sc>=70?'Bien':sc>=50?'En progreso':'Necesita mejorar');
+  const gradeColor = sc>=85?'var(--mint)':sc>=70?'var(--teal)':sc>=50?'var(--yellow)':'#e55';
+  document.getElementById('rsum').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <span style="background:${gradeColor};color:var(--dark);font-size:11px;font-weight:900;padding:4px 12px;border-radius:20px">${grade}</span>
+    </div>
+    <p style="margin-bottom:8px"><strong>Resumen:</strong> ${data.summary||'Análisis completado.'}</p>
+    ${data.strengths?`<p style="margin-bottom:6px">✅ <strong>Puntos fuertes:</strong> ${data.strengths}</p>`:''}
+    ${data.improve?`<p>🎯 <strong>A mejorar:</strong> ${data.improve}</p>`:''}`;
+  const ar = document.getElementById('ares'); ar.innerHTML='';
+  (data.agendaResults||S.agenda.map(a=>({step:a.title,passed:true,feedback:'Sin datos.'}))).forEach(item=>{
+    const d=document.createElement('div'); d.className='ari';
+    d.onclick=function(){this.classList.toggle('open');};
+    d.innerHTML=`<div class="arii">${item.passed?'✅':'⚠️'}</div>
+      <div class="aric"><div class="arin">${item.step}</div><div class="arif">${item.feedback}</div></div>
+      <div class="arie">▾</div>`;
+    ar.appendChild(d);
+  });
+  const sg = document.getElementById('sres'); sg.innerHTML='';
+  (data.skillsResults||S.skills.map(s=>({skill:s,passed:true}))).forEach(item=>{
+    const d=document.createElement('div'); d.className='src';
+    d.innerHTML=`<div class="srb ${item.passed?'p':'f'}">${item.passed?'✓':'✗'}</div>
+      <div><div class="srn">${item.skill}</div><div class="srs">${item.passed?'Demostrada':'A mejorar'}</div></div>`;
+    sg.appendChild(d);
+  });
+}
+function renderBasicResults(){renderResults({score:50,summary:'Análisis básico.',agendaResults:S.agenda.map(a=>({step:a.title,passed:true,feedback:'Sin datos.'})),skillsResults:S.skills.map(s=>({skill:s,passed:true}))});}
+function backToPreview(){document.getElementById('results-screen').classList.remove('show');document.getElementById('preview-screen').classList.remove('hide');}
+function restartConv(){document.getElementById('results-screen').classList.remove('show');startConv();}
+
+// ══════════════ NOTIFY ══════════════
+function notify(msg){
+  const e=document.getElementById('notif');e.textContent=msg;e.classList.add('show');
+  setTimeout(()=>e.classList.remove('show'),3500);
+}
+
+// ══════════════ INIT ══════════════
+window.addEventListener('DOMContentLoaded', () => {
+  // Add 3 default empty agenda items
+  ['','',''].forEach(()=>addAgendaItem());
+  S.agenda = [];
+  renderAgenda();
+  document.getElementById('el-agent').addEventListener('input', () => {
+    S.agentId = document.getElementById('el-agent').value.trim();
+    chkEl();
+  });
+});
+</script>
+</body>
+</html>
